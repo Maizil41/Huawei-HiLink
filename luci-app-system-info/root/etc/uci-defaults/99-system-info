@@ -1,0 +1,15 @@
+#!/bin/sh
+
+TARGET="/www/luci-static/resources/view/status/10_system.js"
+
+if [ -f "$TARGET" ]; then
+    rm -f "$TARGET"
+fi
+
+chmod +x /usr/libexec/rpcd/cputemp 2>/dev/null
+
+/etc/init.d/rpcd restart
+/etc/init.d/uhttpd restart
+
+exit 0
+

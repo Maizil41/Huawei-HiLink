@@ -1,0 +1,108 @@
+#!/bin/sh
+
+STAT_FILE="/tmp/cpu_stat_prev"
+NET_FILE="/tmp/net_stat_prev"
+
+get_temp() {
+    for z in /sys/class/thermal/thermal_zone*/temp; do
+        [ -f "$z" ] || continue
+        T=$(cat "$z" 2>/dev/null)
+        case "$T" in ''|*[!0-9]*) continue;; esac
+        echo $((T/1000))
+        return
+    done
+
+    for h in /sys/class/hwmon/hwmon*/temp*_input; do
+        [ -f "$h" ] || continue
+        T=$(cat "$h" 2>/dev/null)
+        case "$T" in ''|*[!0-9]*) continue;; esac
+        echo $((T/1000))
+        return
+    done
+
+    echo 0
+}
+
+get_cpu_usage() {
+    read cpu user nice sys idle iowait irq softirq steal _ < /proc/stat
+
+    idle_all=$((idle+iowait))
+    total=$((user+nice+sys+idle+iowait+irq+softirq+steal))
+
+    if [ -f "$STAT_FILE" ]; then
+        read prev_idle prev_total < "$STAT_FILE"
+        diff_idle=$((idle_all-prev_idle))
+        diff_total=$((total-prev_total))
+        usage=$(( (100*(diff_total-diff_idle))/diff_total ))
+    else
+        usage=0
+    fi
+
+    echo "$idle_all $total" > "$STAT_FILE"
+    echo $usage
+}
+
+get_mem_usage() {
+    mem_total=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    mem_avail=$(grep MemAvailable /proc/meminfo | awk '{print $2}')
+
+    used=$((mem_total-mem_avail))
+    echo $((used*100/mem_total))
+}
+
+get_net_speed() {
+    iface=$(ip route | awk '/default/ {print $5}' | head -n1)
+    [ -z "$iface" ] && echo "0 0" && return
+
+    line=$(grep "$iface:" /proc/net/dev)
+    rx=$(echo "$line" | awk '{print $2}')
+    tx=$(echo "$line" | awk '{print $10}')
+
+    now=$(date +%s)
+
+    if [ -f "$NET_FILE" ]; then
+        read prx ptx ptime < "$NET_FILE"
+        dt=$((now-ptime))
+
+        if [ "$dt" -gt 0 ]; then
+            rx_speed=$(((rx-prx)/dt))
+            tx_speed=$(((tx-ptx)/dt))
+        else
+            rx_speed=0
+            tx_speed=0
+        fi
+    else
+        rx_speed=0
+        tx_speed=0
+    fi
+
+    echo "$rx $tx $now" > "$NET_FILE"
+    echo "$rx_speed $tx_speed"
+}
+
+case "$1" in
+    list)
+        echo '{ "get": {} }'
+    ;;
+    call)
+        case "$2" in
+            get)
+                TEMP=$(get_temp)
+                CPU=$(get_cpu_usage)
+                MEM=$(get_mem_usage)
+
+                NET=$(get_net_speed)
+                RX=$(echo "$NET" | awk '{print $1}')
+                TX=$(echo "$NET" | awk '{print $2}')
+
+                echo "{ \
+\"temp\": $TEMP, \
+\"cpu\": $CPU, \
+\"mem\": $MEM, \
+\"rx_Bps\": $RX, \
+\"tx_Bps\": $TX \
+}"
+            ;;
+        esac
+    ;;
+esac
