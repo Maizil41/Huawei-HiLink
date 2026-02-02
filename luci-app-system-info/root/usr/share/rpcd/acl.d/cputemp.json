@@ -1,0 +1,10 @@
+{
+  "luci-cputemp": {
+    "description": "Allow LuCI access to cputemp",
+    "read": {
+      "ubus": {
+        "cputemp": [ "get" ]
+      }
+    }
+  }
+}
