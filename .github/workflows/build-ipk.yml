@@ -1,4 +1,4 @@
-name: Build IPK
+name: Build IPK Syinfo
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    name: Build IPK Syinfo
+    name: Build IPK
     runs-on: ubuntu-latest
 
     steps:
