@@ -47,11 +47,11 @@ jobs:
           mv sdk/package/tmp/${PKG_NAME} sdk/package/
           rm -rf sdk/package/tmp
 
-          git clone --depth 1 https://git.openwrt.org/openwrt/openwrt.git feeds/
-          git clone --depth 1 https://git.openwrt.org/openwrt/packages.git feeds/
-          git clone --depth 1 https://git.openwrt.org/openwrt/luci.git  feeds/
-          git clone --depth 1 https://git.openwrt.org/openwrt/routing.git  feeds/
-          git clone --depth 1 https://git.openwrt.org/openwrt/telephony.git  feeds/
+          git clone --depth 1 https://git.openwrt.org/openwrt/openwrt.git sdk/feeds/
+          git clone --depth 1 https://git.openwrt.org/openwrt/packages.git sdk/feeds/
+          git clone --depth 1 https://git.openwrt.org/openwrt/luci.git sdk/feeds/
+          git clone --depth 1 https://git.openwrt.org/openwrt/routing.git sdk/feeds/
+          git clone --depth 1 https://git.openwrt.org/openwrt/telephony.git sdk/feeds/
 
       - name: 📡 Set up SDK feeds
         run: |
