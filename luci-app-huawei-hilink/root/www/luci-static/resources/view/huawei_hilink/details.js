@@ -1,59 +1,8 @@
 "use strict";"require view";"require poll";const circleState={};const API="/cgi-bin/huawei_hilink";const PoweredBy="Mutiara-Wrt";const E=(tag,attrs,children)=>{const el=document.createElement(tag);if(attrs){for(const k in attrs){if(k==="class")el.className=attrs[k];else if(k==="style")el.setAttribute("style",attrs[k]);else el.setAttribute(k,attrs[k])}}
 if(children!=null){if(Array.isArray(children)){children.forEach(c=>{if(c==null)return;el.append(c.nodeType?c:document.createTextNode(String(c)))})}else{el.append(children?.nodeType?children:document.createTextNode(String(children)))}}
-return el};(function(){const css=`
-.sig-grid{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:space-between;
-  gap:18px;
-}
-
-.sig-card{
-  width:130px;
-  background:#f7f7f7;
-  border-radius:12px;
-  padding:10px 8px 14px;
-  text-align:center;
-  box-shadow:0 1px 3px rgba(0,0,0,.15);
-}
-
-.sig-title{
-  font-size:12px;
-  font-weight:600;
-  margin-bottom:6px;
-}
-
-.circle-wrap{
-  width:90px;height:90px;
-  border-radius:50%;
-  margin:auto;
-  background:#e6e6e6;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.circle-inner{
-  width:75px;
-  height:75px;
-  background:#fff;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.circle-pct{
-  font-size:16px;
-  font-weight:bold;
-}
-
-.sig-value{
-  font-size:12px;
-  margin-top:6px;
-  opacity:.8;
-}
-`;document.head.appendChild(E("style",{},css))})();const T=s=>typeof _==="function"?_(s):String(s??"");function luRes(path){try{return typeof L!=="undefined"&&L.resource?L.resource(path):path}catch(_e){return path}}
+return el};(function(){const css=` .conn-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap}@media (max-width:600px){.conn-wrap{flex-direction:column;align-items:flex-start}}.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.info-card{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 4px 14px rgb(0 0 0 / .08);border:1px solid rgb(0 0 0 / .05);transition:.2s}.info-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgb(0 0 0 / .12)}.info-label{font-size:12px;opacity:.6;margin-bottom:4px}.info-value{font-size:15px;font-weight:600;word-break:break-all}.badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:600;background:#e9f2ff;color:#2b6cb0}.cbi-section h3{margin-bottom:12px;font-weight:700;font-size:16px}.sig-grid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:18px}.sig-card{width:130px;background:#f7f7f7;border-radius:12px;padding:10px 8px 14px;text-align:center;box-shadow:0 1px 3px rgb(0 0 0 / .15)}.sig-title{font-size:12px;font-weight:600;margin-bottom:6px}.circle-wrap{width:90px;height:90px;border-radius:50%;margin:auto;background:#e6e6e6;display:flex;align-items:center;justify-content:center}.circle-inner{width:75px;height:75px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center}.circle-pct{font-size:16px;font-weight:700}.sig-value{font-size:12px;margin-top:6px;opacity:.8}`;document.head.appendChild(E("style",{},css))})();const T=s=>typeof _==="function"?_(s):String(s??"");function infoCard(label,value){return E("div",{class:"info-card"},[E("div",{class:"info-label"},label),E("div",{class:"info-value"},value??"-")])}
+function infoGrid(items){return E("div",{class:"info-grid"},items)}
+function luRes(path){try{return typeof L!=="undefined"&&L.resource?L.resource(path):path}catch(_e){return path}}
 function num(v){if(v==null)return null;const m=String(v).match(/-?\d+/);return m?parseInt(m[0],10):null}
 function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
 function pct(v,min,max){const n=num(v);if(n==null)return 0;const p=(n-min)/(max-min);return Math.round(clamp(p,0,1)*100)}
@@ -77,13 +26,13 @@ function iconFileFromPercent(pctVal){const p=clamp(pctVal|0,0,100);if(p===0)retu
 function setSignalImg(id,percent,titleText){const img=document.getElementById(id);const txt=document.getElementById(id+"-text");if(!img||!txt)return;const p=clamp(percent|0,0,100);img.src=luRes("icons/"+iconFileFromPercent(p));txt.textContent=p+"%";img.title=titleText==null||titleText===""?"-":String(titleText)}
 function computeModeName(d){return d.net_mode==="7"?`${d.workmode} | ${d.band}`:d.workmode}
 const is4G=d=>d.net_mode==="7";const is3G=d=>d.net_mode==="2";function normalize(apiData){const n=apiData?.network||{};const c=apiData?.connection||{};const t=apiData?.traffic||{};const dv=apiData?.device||{};return{operator:n.operator??"-",plmn:n.plmn??"-",net_mode:n.net_mode??"",pci:n.pci??"-",rssi:n.rssi??"-",rsrp:n.rsrp??"-",sinr:n.sinr??"-",rsrq:n.rsrq??"-",rscp:n.rscp??"-",ecio:n.ecio??"-",lac_dec:n.lac_dec??"-",lac_hex:n.lac_hex??"-",cell_id_dec:n.cell_id_dec??"-",cell_id_hex:n.cell_id_hex??"-",enb_rnc:n.enb_rnc??"-",cell_index:n.cell_index??"-",band:n.band??"-",earfcn_dl:n.earfcn_dl??"-",earfcn_ul:n.earfcn_ul??"-",bandwidth_dl_mhz:n.bw_dl??"-",bandwidth_ul_mhz:n.bw_ul??"-",freq_dl:n.freq_dl??"-",freq_ul:n.freq_ul??"-",sim_status:n.status??"-",connt_current:c.cconn??"-",connrx:c.crx??"-",conntx:c.ctx??"-",speedrx:t.rx??"-",speedtx:t.tx??"-",devicename:dv.model??"-",software_version:dv.software??"-",webui_version:dv.webui??"-",imei:dv.imei??apiData?.imei??"-",imsi:dv.imsi??apiData?.imsi??"-",iccid:dv.iccid??apiData?.iccid??"-",msisdn:dv.msisdn??apiData?.msisdn??"-",wan_ip:dv.wan_ip??apiData?.wan_ip??"-",mac1:dv.mac1??apiData?.mac1??"-",workmode:dv.workmode??apiData?.workmode??"-"}}
-function renderConnInfo(d){const elstat=document.getElementById("conn-stat");if(!elstat)return;const last=d.connt_current||"-";const crx=d.connrx||"-";const ctx=d.conntx||"-";const sicon=luRes("icons/hilink_ctime.png");elstat.innerHTML=`<img src="${sicon}" style="width:16px;height:16px;vertical-align:middle;margin-right:4px"/>`+`${last} | ▲ ${ctx} ▼ ${crx}`}
+function renderConnInfo(d){const elstat=document.getElementById("conn-stat");if(!elstat)return;const last=d.connt_current||"-";const crx=d.connrx||"-";const ctx=d.conntx||"-";const sicon=luRes("icons/hilink_ctime.png");elstat.innerHTML="";elstat.append(E("div",{class:"conn-wrap"},[E("span",{},[E("img",{src:sicon,style:"width:16px;height:16px;vertical-align:middle;margin-right:4px"}),`${last}`]),E("span",{},["▲ ",`${ctx}`]),E("span",{},["▼ ",`${crx}`])]))}
 function SIMdata(d){const registered=String(d.sim_status)==="1";return E("span",{},[E("img",{src:luRes("icons/hilink_sim.png"),style:"width:20px;height:auto;vertical-align:middle;margin-right:4px"}),T(registered?"Registered":"Not registered")])}
-const EMPTY_DATA={plmn:"-",operator:"-",net_mode:"-",pci:"-",rssi:"-",rsrp:"-",sinr:"-",rsrq:"-",rscp:"-",ecio:"-",lac_dec:"-",lac_hex:"-",cell_id_dec:"-",cell_id_hex:"-",enb_rnc:"-",cell_index:"-",earfcn_dl:"-",earfcn_ul:"-",bandwidth_dl_mhz:"-",bandwidth_ul_mhz:"-",band:"-",sim_status:"-",connt_current:"-",connrx:"-",conntx:"-",speedrx:"-",speedtx:"-",devicename:"-",software_version:"-",webui_version:"-",imei:"-",imsi:"-",iccid:"-",msisdn:"-",wan_ip:"-",mac1:"-",workmode:"-"};function renderAll(d,$top,$sig,$cell,$dev){const modeName=computeModeName(d);const scorePct=qualityPercent(d.rssi);const csq=num(d.rssi)!=null?clamp(Math.round((num(d.rssi)+113)/2),0,31):null;$top.innerHTML="";const simRow=E("div",{class:"tr"},[E("div",{class:"td left",style:"width:33%"},T("SIM status")),E("div",{class:"td left"},[SIMdata(d)])]);$top.append(E("h3",{},T("General Information")),tableRows([trSignalImg("sigimg","Signal strength"),trKVLeft("Operator",d.operator||"-"),trKVLeft("PLMN",d.plmn||"-"),simRow,trKVLeft("Technology",modeName),trKVLeft("Connection Statistics",E("span",{id:"conn-stat"},"-"))]));setSignalImg("sigimg",scorePct,scorePct+"%");$dev.innerHTML="";$dev.append(E("h3",{},T("Device Information")),tableRows([trKVLeft("Device Model",d.devicename||"-"),trKVLeft("IMEI",d.imei||"-"),trKVLeft("IMSI",d.imsi||"-"),trKVLeft("ICCID",d.iccid||"-"),trKVLeft("My Number",d.msisdn||"-"),trKVLeft("WAN IP Address",d.wan_ip||"-"),trKVLeft("LAN MAC address",d.mac1||"-"),trKVLeft("Software Version",d.software_version||"-"),trKVLeft("WebUI Version",d.webui_version||"-")]));$sig.innerHTML="";$sig.append(E("h3",{},T("Signal Information")));const sigRows=[trProgress("csqn","CSQ","(Signal Strength)")];if(is4G(d)){sigRows.push(trProgress("rssin","RSSI","(Received Signal Strength Indicator)"),trProgress("rsrpn","RSRP","(Reference Signal Receive Power)"),trProgress("sinrn","SINR","(Signal to Interference plus Noise Ratio)"),trProgress("rsrqn","RSRQ","(Reference Signal Received Quality)"))}else if(is3G(d)){sigRows.push(trProgress("rscpn","RSCP","(Received Signal Code Power)"),trProgress("ecion","Ec/Io","(Energy per chip / Interference)"))}
+const EMPTY_DATA={plmn:"-",operator:"-",net_mode:"-",pci:"-",rssi:"-",rsrp:"-",sinr:"-",rsrq:"-",rscp:"-",ecio:"-",lac_dec:"-",lac_hex:"-",cell_id_dec:"-",cell_id_hex:"-",enb_rnc:"-",cell_index:"-",earfcn_dl:"-",earfcn_ul:"-",bandwidth_dl_mhz:"-",bandwidth_ul_mhz:"-",band:"-",sim_status:"-",connt_current:"-",connrx:"-",conntx:"-",speedrx:"-",speedtx:"-",devicename:"-",software_version:"-",webui_version:"-",imei:"-",imsi:"-",iccid:"-",msisdn:"-",wan_ip:"-",mac1:"-",workmode:"-"};function renderAll(d,$top,$sig,$cell,$dev){const modeName=computeModeName(d);const scorePct=qualityPercent(d.rssi);const csq=num(d.rssi)!=null?clamp(Math.round((num(d.rssi)+113)/2),0,31):null;$top.innerHTML="";const simRow=E("div",{class:"tr"},[E("div",{class:"td left",style:"width:33%"},T("SIM status")),E("div",{class:"td left"},[SIMdata(d)])]);$top.append(E("h3",{},T("General Information")),tableRows([trSignalImg("sigimg","Signal strength"),trKVLeft("Operator",d.operator||"-"),trKVLeft("PLMN",d.plmn||"-"),simRow,trKVLeft("Wan IP",E("span",{class:"badge"},d.wan_ip)),trKVLeft("Technology",modeName),trKVLeft("Connection Statistics",E("span",{id:"conn-stat"},"-"))]));setSignalImg("sigimg",scorePct,scorePct+"%");$dev.innerHTML="";$dev.append(E("h3",{},"Device Information"),infoGrid([infoCard("Device Model",d.devicename),infoCard("IMEI",d.imei),infoCard("IMSI",d.imsi),infoCard("ICCID",d.iccid),infoCard("Phone Number",d.msisdn),infoCard("MAC Address",d.mac1),infoCard("Software",d.software_version),]));$sig.innerHTML="";$sig.append(E("h3",{},T("Signal Information")));const sigRows=[trProgress("csqn","CSQ","(Signal Strength)")];if(is4G(d)){sigRows.push(trProgress("rssin","RSSI","(Received Signal Strength Indicator)"),trProgress("rsrpn","RSRP","(Reference Signal Receive Power)"),trProgress("sinrn","SINR","(Signal to Interference plus Noise Ratio)"),trProgress("rsrqn","RSRQ","(Reference Signal Received Quality)"))}else if(is3G(d)){sigRows.push(trProgress("rscpn","RSCP","(Received Signal Code Power)"),trProgress("ecion","Ec/Io","(Energy per chip / Interference)"))}
 $sig.append(E("div",{class:"sig-grid"},sigRows));setMetric("rssin",d.rssi,pctRSSI,rssiInfo);if(is4G(d)){setMetric("rsrpn",d.rsrp,pctRSRP,rsrpInfo);setMetric("sinrn",d.sinr,pctSINR,sinrInfo);setMetric("rsrqn",d.rsrq,pctRSRQ,rsrqInfo)
 setMetric("csqn",csq,pctCSQ,csqInfo)}else if(is3G(d)){setMetric("rscpn",d.rscp,pctRSCP,rscpInfo);setMetric("ecion",d.ecio,pctECIO,ecioInfo)}
-$cell.innerHTML="";const cellRows=[];if(is4G(d)){cellRows.push(trKVLeft("PCI",d.pci??""),trKVLeft("EARFCN (DL/UL)",(d.earfcn_dl??"")+((d.earfcn_ul??"")!==""?" / "+d.earfcn_ul:"")),trKVLeft("Frequency (DL/UL)",(d.freq_dl??"")+((d.freq_ul??"")!==""?" / "+d.freq_ul:"")),trKVLeft("Bandwidth (DL/UL)",((d.bandwidth_dl_mhz??"")!==""?d.bandwidth_dl_mhz+" MHz":"")+((d.bandwidth_ul_mhz??"")!==""?" / "+d.bandwidth_ul_mhz+" MHz":"")),trKVLeft("LAC (hex/dec)",(d.lac_hex??"")+" / "+(d.lac_dec??"")),trKVLeft("Cell ID (hex/dec)",(d.cell_id_hex??"")+" / "+(d.cell_id_dec??"")),trKVLeft("eNB / Cell",d.enb_rnc!=null&&d.cell_index!=null?d.enb_rnc+" / "+d.cell_index:""))}else if(is3G(d)){cellRows.push(trKVLeft("LAC (hex/dec)",(d.lac_hex??"")+" / "+(d.lac_dec??"")),trKVLeft("Cell ID (hex/dec)",(d.cell_id_hex??"")+" / "+(d.cell_id_dec??"")),trKVLeft("RNC / CI",d.enb_rnc!=null&&d.cell_index!=null?d.enb_rnc+" / "+d.cell_index:""))}else{cellRows.push(trKVLeft("LAC (hex/dec)",(d.lac_hex??"")+" / "+(d.lac_dec??"")),trKVLeft("Cell ID (hex/dec)",(d.cell_id_hex??"")+" / "+(d.cell_id_dec??"")))}
-$cell.append(E("h3",{},T("Cell Information")),tableRows(cellRows));renderConnInfo(d)}
+$cell.innerHTML="";const cellItems=[];if(is4G(d)){const earfcn=(d.earfcn_dl||"-")+(d.earfcn_ul?" / "+d.earfcn_ul:"");const freq=(d.freq_dl||"-")+(d.freq_ul?" / "+d.freq_ul:"");const bw=(d.bandwidth_dl_mhz?d.bandwidth_dl_mhz+" MHz":"-")+(d.bandwidth_ul_mhz?" / "+d.bandwidth_ul_mhz+" MHz":"");cellItems.push(infoCard("PCI",d.pci),infoCard("EARFCN",earfcn),infoCard("Frequency",freq),infoCard("Bandwidth",bw),infoCard("LAC",`${d.lac_hex || "-"} / ${d.lac_dec || "-"}`),infoCard("Cell ID",`${d.cell_id_hex || "-"} / ${d.cell_id_dec || "-"}`),infoCard("eNB / Cell",(d.enb_rnc&&d.cell_index)?d.enb_rnc+" / "+d.cell_index:"-"))}else if(is3G(d)){cellItems.push(infoCard("LAC",`${d.lac_hex || "-"} / ${d.lac_dec || "-"}`),infoCard("Cell ID",`${d.cell_id_hex || "-"} / ${d.cell_id_dec || "-"}`),infoCard("RNC / CI",(d.enb_rnc&&d.cell_index)?d.enb_rnc+" / "+d.cell_index:"-"))}else{cellItems.push(infoCard("LAC",`${d.lac_hex || "-"} / ${d.lac_dec || "-"}`),infoCard("Cell ID",`${d.cell_id_hex || "-"} / ${d.cell_id_dec || "-"}`))}
+$cell.append(E("h3",{},"Cell Information"),infoGrid(cellItems));renderConnInfo(d)}
 async function fetchData(){const r=await fetch(API,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();if(!j||!j.status||String(j.status).toLowerCase()!=="success")
 throw new Error("API error");return normalize(j.data||{})}
 async function repaint($top,$sig,$cell,$alert,$dev){try{const d=await fetchData();$alert.style.display="none";renderAll(d,$top,$sig,$cell,$dev)}catch(_e){$alert.style.display=""}}
