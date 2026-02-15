@@ -18,6 +18,6 @@
 
 ### Preview
 
-![](./img/detail.png)
+![](./img/detailz.png)
 ![](./img/sms_view.png)
 ![](./img/setting.png)
