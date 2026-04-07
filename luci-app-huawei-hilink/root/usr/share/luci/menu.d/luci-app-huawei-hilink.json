@@ -1,4 +1,12 @@
 {
+	"admin/modem": {
+		"title": "Modem",
+		"order": 30,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		}
+	},
 	"admin/modem/huawei_hilink": {
 		"title": "Huawei HiLink",
 		"order": 10,
