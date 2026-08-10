@@ -8,6 +8,9 @@ SRC_DIR="/usr/share/huawei_hilink"
 LINKS="huawei_hilink huawei_sms"
 REMOVE_ONLY="read_sms delete_sms"
 
+NEW_TARGET_BIN="/usr/bin/hilink_api"
+NEW_LINK_NAME="hilink_api"
+
 log() { echo "[$(date +%H:%M:%S)] $*"; }
 
 ensure_dirs() {
@@ -28,6 +31,11 @@ remove_old_symlinks() {
             log "Remove symlink: $CGI_DIR/$f"
         fi
     done
+
+    if [ -L "$CGI_DIR/$NEW_LINK_NAME" ]; then
+        rm -f "$CGI_DIR/$NEW_LINK_NAME"
+        log "Remove symlink: $CGI_DIR/$NEW_LINK_NAME"
+    fi
 }
 
 create_symlinks() {
@@ -39,6 +47,13 @@ create_symlinks() {
             log "WARN : Target lost, pass: $SRC_DIR/$f"
         fi
     done
+
+    if [ -e "$NEW_TARGET_BIN" ]; then
+        ln -s "$NEW_TARGET_BIN" "$CGI_DIR/$NEW_LINK_NAME"
+        log "Link  : $CGI_DIR/$NEW_LINK_NAME -> $NEW_TARGET_BIN"
+    else
+        log "WARN : Target lost, pass: $NEW_TARGET_BIN"
+    fi
 }
 
 make_executable() {
@@ -48,6 +63,11 @@ make_executable() {
             log "Chmod : +x $SRC_DIR/$f"
         fi
     done
+
+    if [ -e "$NEW_TARGET_BIN" ]; then
+        chmod +x "$NEW_TARGET_BIN"
+        log "Chmod : +x $NEW_TARGET_BIN"
+    fi
 }
 
 validate() {
@@ -58,8 +78,14 @@ validate() {
             missing=$((missing+1))
         fi
     done
+
+    if [ ! -L "$CGI_DIR/$NEW_LINK_NAME" ]; then
+        log "ERROR: Symlink is not created: $CGI_DIR/$NEW_LINK_NAME"
+        missing=$((missing+1))
+    fi
+
     if [ "$missing" -eq 0 ]; then
-        log "OK   : All symlinks are ready.)"
+        log "OK    : All symlinks are ready."
     else
         log "ERROR: There was a $missing error. Check the log above."
         exit 1
