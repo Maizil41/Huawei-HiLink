@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="img/hilink.png" alt="logo" width="150">
+  <img src="img/34833819.png" alt="logo" width="150">
   <h1>Huawei HiLink</h1>
 </div>
 
